@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المفردة الشاذة والارتباط والاختلاف 1</title>
+    <title>المفردة الشاذة والارتباط والاختلاف نموذج 1  </title>
     <style>
         :root { --primary: #2c3e50; --accent: #3498db; --danger: #e74c3c; --bg: #f4f7f6; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); margin: 0; padding: 15px; }
         .container { max-width: 700px; margin: 20px auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-top: 5px solid var(--accent); }
         .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 15px; }
-        .timer { font-size: 1.6em; font-weight: bold; margin: 15px 0; text-align: center; transition: 0.3s; }
+        .timer { font-size: 1.6em; font-weight: bold; margin: 15px 0; text-align: center; transition: 0.3s; color: #2ecc71; }
         .timer.warning { color: var(--danger); animation: blink 0.5s infinite; }
-        @keyframes blink { 50% { opacity: 0.5; } }
+        @keyframes blink { 50% { opacity: 0.3; } }
         .question-box { background: #fff; padding: 20px; border-radius: 10px; }
         .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
         .opt-btn { padding: 15px; border: 2px solid #f0f0f0; border-radius: 10px; cursor: pointer; background: #fff; transition: 0.2s; font-size: 1.05em; text-align: right; }
@@ -19,25 +19,23 @@
         .feedback { margin-top: 15px; padding: 15px; border-radius: 8px; display: none; text-align: center; font-weight: bold; }
         .footer-stamp { color: #95a5a6; font-size: 0.85em; margin-top: 40px; border-top: 1px solid #eee; padding-top: 15px; text-align: center; line-height: 1.6; }
         .hidden { display: none; }
-        #next-btn { width: 100%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 15px; }
+        #next-btn { width: 100%; padding: 14px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 15px; font-weight: bold; font-size: 1.1em; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h2 style="margin:0; color:var(--primary);">اختبار المفردة الشاذة والارتباط والارتباط (نموذج 5) 📝✨</h2>
+        <h2 style="margin:0; color:var(--primary);">المفردة الشاذة والارتباط والاختلاف نموذج 1 📝✨</h2>
         <p style="margin:5px 0; color:#7f8c8d;">أ / عبد العزيز الفيفي - ثانوية الأمير عبد المجيد 🏫</p>
     </div>
 
-    <!-- تسجيل الدخول -->
     <div id="login-screen">
         <h3>يرجى إدخال اسمك لبدء التحدي:</h3>
-        <input type="text" id="student-name" placeholder="اسمك الثلاثي هنا..." style="width:90%; padding:12px; border-radius:8px; border:1px solid #ddd; font-size:1em;">
+        <input type="text" id="student-name" placeholder="اسمك الثلاثي هنا..." style="width:95%; padding:12px; border-radius:8px; border:1px solid #ddd; font-size:1em;">
         <button onclick="startQuiz()" style="width:100%; padding:14px; background:var(--accent); color:white; border:none; border-radius:8px; cursor:pointer; margin-top:15px; font-weight:bold;">ابدأ الاختبار 🚀</button>
     </div>
 
-    <!-- شاشة الاختبار -->
     <div id="quiz-screen" class="hidden">
         <div style="display:flex; justify-content:space-between; color:var(--danger); font-weight:bold; margin-bottom:10px;">
             <span>👤 <span id="display-name"></span></span>
@@ -51,10 +49,9 @@
         </div>
         
         <div id="feedback" class="feedback"></div>
-        <button id="next-btn" class="hidden" onclick="loadQuestion()">انتقل للسؤال التالي ⬅️</button>
+        <button id="next-btn" class="hidden" onclick="incrementAndLoad()">انتقل للسؤال التالي ⬅️</button>
     </div>
 
-    <!-- الملخص النهائي -->
     <div id="result-screen" class="hidden">
         <h2 style="color:var(--accent)">انتهى الاختبار بنجاح! 🎉</h2>
         <h3 id="score-text"></h3>
@@ -69,7 +66,6 @@
 </div>
 
 <script>
-    // تم ترتيب الأسئلة لضمان عدم تكرار النمط (ارتباط -> شاذة -> اختلاف)
     const questions = [
         { type: "ارتباط", q: "ارتباط: ما الكلمة الأكثر صلة بكلمة (غابة):", options: ["سمك", "رمل", "أشجار", "ماء"], correct: 2, hint: "الأشجار هي المكون الأساسي للغابة." },
         { type: "شاذة", q: "المفردة الشاذة: حدد الكلمة المختلفة:", options: ["التفاح", "البرتقال", "الخيار", "الموز"], correct: 2, hint: "الخيار من الخضروات، البقية فواكه." },
@@ -104,7 +100,7 @@
         studentName = document.getElementById('student-name').value.trim();
         if (!studentName) { alert("لطفاً أدخل اسمك!"); return; }
         if (localStorage.getItem('quiz_locked_2026')) {
-            alert("عذراً، انتهت محاولتك لهذا الاختبار! 🚫");
+            alert("عذراً، قدمت الاختبار مسبقاً! 🚫");
             return;
         }
         document.getElementById('login-screen').classList.add('hidden');
@@ -146,7 +142,7 @@
             if (time <= 5) timerDiv.classList.add('warning');
             if (time <= 0) { 
                 clearInterval(timer); 
-                checkAnswer(-1); // انتهاء وقت
+                checkAnswer(-1); 
             }
         }, 1000);
     }
@@ -162,25 +158,29 @@
 
         f.style.background = isCorrect ? "#d4edda" : "#f8d7da";
         f.style.color = isCorrect ? "#155724" : "#721c24";
-        f.innerHTML = `<b>${idx===-1?"⏰ انتهى الوقت!": (isCorrect ? "✅ إجابة صحيحة" : "❌ إجابة خاطئة")}</b><br>الصح: ${q.options[q.correct]} - ${q.hint}`;
+        f.innerHTML = `<b>${idx===-1?"⏰ انتهى الوقت!": (isCorrect ? "✅ إجابة صحيحة" : "❌ إجابة خاطئة")}</b><br>الإجابة الصحيحة هي: ${q.options[q.correct]} <br> <small>${q.hint}</small>`;
         
         userAnswers.push({ q: q.q, user: idx===-1?"لم يحل":q.options[idx], correct: q.options[q.correct], status: isCorrect });
         
-        const btns = document.querySelectorAll('.opt-btn');
-        btns.forEach(b => b.disabled = true);
+        document.querySelectorAll('.opt-btn').forEach(b => b.disabled = true);
 
         if (idx === -1) {
-            setTimeout(() => { currentIdx++; loadQuestion(); }, 2500); // انتقال آلي بعد انتهاء الوقت
+            setTimeout(() => { incrementAndLoad(); }, 3000);
         } else {
             document.getElementById('next-btn').classList.remove('hidden');
         }
+    }
+
+    function incrementAndLoad() {
+        currentIdx++;
+        loadQuestion();
     }
 
     function endQuiz() {
         localStorage.setItem('quiz_locked_2026', 'true');
         document.getElementById('quiz-screen').classList.add('hidden');
         document.getElementById('result-screen').classList.remove('hidden');
-        document.getElementById('score-text').innerText = `حصلت على ${score} من 25 درجة 🏆`;
+        document.getElementById('score-text').innerText = `النتيجة النهائية: ${score} من 25 درجة 🏆`;
         
         let html = "";
         userAnswers.forEach((ans, i) => {
