@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار المفردة الشاذة والارتباط</title>
+    <style>
+        :root { --primary-color: #2c3e50; --accent-color: #3498db; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; padding: 20px; text-align: center; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .header { border-bottom: 2px solid #eee; margin-bottom: 20px; padding-bottom: 10px; }
+        .school-info { color: #e74c3c; font-weight: bold; font-size: 1.2em; }
+        .teacher-info { color: #2c3e50; margin: 10px 0; }
+        .timer { font-size: 1.5em; color: #e67e22; font-weight: bold; margin: 15px 0; }
+        .question-box { margin-top: 20px; text-align: right; }
+        .options { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        button { padding: 15px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; transition: 0.3s; font-size: 1.1em; background: #fff; }
+        button:hover { background: #f0f0f0; border-color: var(--accent-color); }
+        .feedback { margin-top: 20px; padding: 15px; border-radius: 8px; display: none; font-weight: bold; }
+        #summary { text-align: right; line-height: 1.8; }
+        .hidden { display: none; }
+        .stamp { font-size: 1.3em; color: #27ae60; font-weight: bold; margin-top: 30px; border-top: 2px dashed #ccc; padding-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- الهيدر الثابت -->
+    <div class="header">
+        <h1>اختبار المفردة الشاذة والارتباط 📝✨</h1>
+        <div class="school-info">🏫 ثانوية الأمير عبد المجيد</div>
+        <div class="teacher-info">👨‍🏫 أ / عبد العزيز الفيفي</div>
+    </div>
+
+    <!-- واجهة تسجيل الاسم -->
+    <div id="login-section">
+        <h3>يرجى إدخال اسمك لبدء الاختبار:</h3>
+        <input type="text" id="student-name" placeholder="اسم الطالب الثلاثي..." style="padding: 10px; width: 80%; font-size: 1.1em;">
+        <br><br>
+        <button onclick="startQuiz()" style="background: var(--accent-color); color: white; width: 50%;">ابدأ الاختبار الآن 🚀</button>
+    </div>
+
+    <!-- واجهة الأسئلة -->
+    <div id="quiz-section" class="hidden">
+        <div class="timer">⏳ الوقت المتبقي: <span id="time-left">45</span> ثانية</div>
+        <div id="question-container" class="question-box">
+            <h3 id="question-text"></h3>
+            <div id="options-container" class="options"></div>
+        </div>
+        <div id="feedback" class="feedback"></div>
+        <br>
+        <button id="next-btn" class="hidden" onclick="loadQuestion()">السؤال التالي ➡️</button>
+    </div>
+
+    <!-- واجهة الملخص النهائي -->
+    <div id="result-section" class="hidden">
+        <div id="summary"></div>
+        <div class="stamp">
+            🌟 نتمنى لك مزيداً من التوفيق 🌟<br>
+            <small>ثانوية الأمير عبد المجيد - أ/ عبد العزيز الفيفي 🎓✨</small>
+        </div>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        { q: "ارتباط: ما الكلمة الأكثر صلة بكلمة (غابة):", options: ["سمك", "رمل", "أشجار", "ماء"], correct: 2, hint: "الغابة تتميز بكثافة الأشجار." },
+        { q: "المفردة الشاذة: حدد الكلمة المختلفة:", options: ["التفاح", "البرتقال", "الخيار", "الموز"], correct: 2, hint: "الخيار من الخضروات والبقية فواكه." },
+        // يمكنك إضافة الـ 25 سؤالاً هنا بنفس النمط
+    ];
+
+    let currentQ = 0;
+    let score = 0;
+    let timer;
+    let studentName = "";
+    let userAnswers = [];
+
+    function startQuiz() {
+        studentName = document.getElementById('student-name').value;
+        if (!studentName) { alert("لطفاً أدخل اسمك أولاً!"); return; }
+        
+        if (localStorage.getItem('quiz_taken_' + studentName)) {
+            alert("عذراً، لا يمكن تقديم الاختبار أكثر من مرة من نفس الجهاز 🚫");
+            return;
+        }
+
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('quiz-section').classList.remove('hidden');
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        if (currentQ >= questions.length) { showResults(); return; }
+        
+        clearInterval(timer);
+        let timeLeft = 45;
+        document.getElementById('time-left').innerText = timeLeft;
+        document.getElementById('feedback').style.display = 'none';
+        document.getElementById('next-btn').classList.add('hidden');
+        
+        const qData = questions[currentQ];
+        document.getElementById('question-text').innerText = `سؤال ${currentQ + 1}: ${qData.q}`;
+        
+        const optionsDiv = document.getElementById('options-container');
+        optionsDiv.innerHTML = '';
+        qData.options.forEach((opt, index) => {
+            const btn = document.createElement('button');
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(index);
+            optionsDiv.appendChild(btn);
+        });
+
+        timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById('time-left').innerText = timeLeft;
+            if (timeLeft <= 0) {
+                clearInterval(timer);
+                checkAnswer(-1); // انتهى الوقت
+            }
+        }, 1000);
+    }
+
+    function checkAnswer(choice) {
+        clearInterval(timer);
+        const qData = questions[currentQ];
+        const feedback = document.getElementById('feedback');
+        feedback.style.display = 'block';
+        
+        let status = "";
+        if (choice === qData.correct) {
+            score++;
+            status = "✅ إجابة صحيحة!";
+            feedback.style.background = "#d4edda";
+            feedback.style.color = "#155724";
+        } else {
+            status = choice === -1 ? "⏰ انتهى الوقت!" : "❌ إجابة خاطئة!";
+            feedback.style.background = "#f8d7da";
+            feedback.style.color = "#721c24";
+        }
+
+        feedback.innerHTML = `${status} <br> <small>${qData.hint}</small>`;
+        userAnswers.push({ q: qData.q, correct: qData.options[qData.correct], user: choice === -1 ? "لم يتم الحل" : qData.options[choice] });
+        
+        currentQ++;
+        document.getElementById('next-btn').classList.remove('hidden');
+        const buttons = document.querySelectorAll('.options button');
+        buttons.forEach(b => b.disabled = true);
+    }
+
+    function showResults() {
+        document.getElementById('quiz-section').classList.add('hidden');
+        const resultSection = document.getElementById('result-section');
+        resultSection.classList.remove('hidden');
+        
+        localStorage.setItem('quiz_taken_' + studentName, true);
+
+        let html = `<h2>ملخص نتائج الطالب: ${studentName} 📋</h2>`;
+        html += `<h3>الدرجة النهائية: ${score} من ${questions.length}</h3><hr>`;
+        userAnswers.forEach((ans, i) => {
+            html += `<p><b>س${i+1}:</b> ${ans.q}<br> إجابتك: ${ans.user} | الإجابة الصحيحة: <span style="color:green">${ans.correct}</span></p>`;
+        });
+        
+        document.getElementById('summary').innerHTML = html;
+    }
+</script>
+</body>
+</html>
